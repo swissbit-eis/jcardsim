@@ -20,11 +20,10 @@ import javacard.framework.JCSystem;
 import javacard.framework.Util;
 import javacard.security.CryptoException;
 import javacard.security.Key;
+import javacard.security.MessageDigest;
 import javacard.security.Signature;
 import javacard.security.SignatureMessageRecovery;
-import javacard.security.MessageDigest;
 import javacardx.crypto.Cipher;
-
 import org.bouncycastle.crypto.DataLengthException;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.Signer;
@@ -65,7 +64,7 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
         this(algorithm, (byte) 0, (byte) 0);
     }
 
-    public AsymmetricSignatureImpl(byte algorithm, byte cipherAlgorithm, byte paddingAlgorithm) {
+  public AsymmetricSignatureImpl(byte algorithm, byte cipherAlgorithm, byte paddingAlgorithm) {
         this.algorithm = algorithm;
         isImplicitTrailer = false;
         this.cipherAlgorithm = cipherAlgorithm;

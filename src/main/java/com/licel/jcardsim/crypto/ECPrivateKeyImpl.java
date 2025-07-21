@@ -15,6 +15,7 @@
  */
 package com.licel.jcardsim.crypto;
 
+import javacard.framework.JCSystem;
 import javacard.security.CryptoException;
 import javacard.security.ECPrivateKey;
 import org.bouncycastle.crypto.CipherParameters;
@@ -28,7 +29,7 @@ import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
  */
 public class ECPrivateKeyImpl extends ECKeyImpl implements ECPrivateKey {
 
-    protected ByteContainer s = new ByteContainer();
+  protected final ByteContainer s;
 
     /**
      * Construct not-initialized ecc private key
@@ -38,7 +39,12 @@ public class ECPrivateKeyImpl extends ECKeyImpl implements ECPrivateKey {
      * @see javacard.security.KeyBuilder
      */
     public ECPrivateKeyImpl(byte keyType, short keySize) {
-        super(keyType, keySize);
+    this(keyType, keySize, JCSystem.MEMORY_TYPE_PERSISTENT);
+  }
+
+  public ECPrivateKeyImpl(byte keyType, short keySize, byte memoryType) {
+    super(keyType, keySize, memoryType);
+    s = new ByteContainer(memoryType);
     }
 
     /**
@@ -51,6 +57,7 @@ public class ECPrivateKeyImpl extends ECKeyImpl implements ECPrivateKey {
     public ECPrivateKeyImpl(ECPrivateKeyParameters params) {
         super(params);
         setParameters(params);
+    s = new ByteContainer(JCSystem.MEMORY_TYPE_PERSISTENT);
     }
   
      public void setParameters(CipherParameters params){

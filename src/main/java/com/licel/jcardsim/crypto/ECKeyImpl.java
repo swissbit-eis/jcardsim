@@ -38,11 +38,11 @@ import org.bouncycastle.math.ec.ECCurve;
  */
 public abstract class ECKeyImpl extends KeyImpl implements ECKey {
 
-    protected ByteContainer a = new ByteContainer();
-    protected ByteContainer b = new ByteContainer();
-    protected ByteContainer g = new ByteContainer();
-    protected ByteContainer r = new ByteContainer();
-    protected ByteContainer fp = new ByteContainer();
+  protected final ByteContainer a;
+  protected final ByteContainer b;
+  protected final ByteContainer g;
+  protected final ByteContainer r;
+  protected final ByteContainer fp;
     protected short k;
     protected short e1;
     protected short e2;
@@ -58,10 +58,28 @@ public abstract class ECKeyImpl extends KeyImpl implements ECKey {
      * @see KeyBuilder
      */
     public ECKeyImpl(byte keyType, short keySize) {
-        this.size = keySize;
-        this.type = keyType;
-        setDomainParameters(getDefaultsDomainParameters(type, size));
-    }
+    this(
+        keyType,
+        keySize,
+        JCSystem.MEMORY_TYPE_PERSISTENT,
+        getDefaultsDomainParameters(keyType, keySize));
+  }
+
+  public ECKeyImpl(byte keyType, short keySize, byte memoryType) {
+    this(keyType, keySize, memoryType, getDefaultsDomainParameters(keyType, keySize));
+  }
+
+  public ECKeyImpl(
+      byte keyType, short keySize, byte memoryType, ECDomainParameters domainParameters) {
+    this.size = keySize;
+    this.type = keyType;
+    a = new ByteContainer(memoryType);
+    b = new ByteContainer(memoryType);
+    g = new ByteContainer(memoryType);
+    r = new ByteContainer(memoryType);
+    fp = new ByteContainer(memoryType);
+    setDomainParameters(domainParameters);
+  }
 
     /**
      * Construct and initialize ecc key with ECKeyParameters. Use in KeyPairImpl
@@ -71,12 +89,21 @@ public abstract class ECKeyImpl extends KeyImpl implements ECKey {
      * @param parameters key params from BouncyCastle API
      */
     public ECKeyImpl(ECKeyParameters parameters) {
-        boolean isPrivate = parameters.isPrivate();
-        boolean isF2M = parameters.getParameters().getCurve() instanceof ECCurve.F2m;
-        type = isPrivate ? (isF2M ? KeyBuilder.TYPE_EC_F2M_PRIVATE : KeyBuilder.TYPE_EC_FP_PRIVATE)
-                : (isF2M ? KeyBuilder.TYPE_EC_F2M_PUBLIC : KeyBuilder.TYPE_EC_FP_PUBLIC);
-        size = (short) parameters.getParameters().getCurve().getFieldSize();
-        setDomainParameters(parameters.getParameters());
+    this(
+        getPersistentKeyType(parameters),
+        (short) parameters.getParameters().getCurve().getFieldSize(),
+        JCSystem.MEMORY_TYPE_PERSISTENT,
+        parameters.getParameters());
+  }
+
+  private static byte getPersistentKeyType(ECKeyParameters parameters) {
+    return parameters.isPrivate()
+        ? (parameters.getParameters().getCurve() instanceof ECCurve.F2m
+            ? KeyBuilder.TYPE_EC_F2M_PRIVATE
+            : KeyBuilder.TYPE_EC_FP_PRIVATE)
+        : (parameters.getParameters().getCurve() instanceof ECCurve.F2m
+            ? KeyBuilder.TYPE_EC_F2M_PUBLIC
+            : KeyBuilder.TYPE_EC_FP_PUBLIC);
     }
 
     public void clearKey() {
@@ -233,17 +260,16 @@ public abstract class ECKeyImpl extends KeyImpl implements ECKey {
         return new ECKeyGenerationParameters(getDefaultsDomainParameters(keyType, keySize), rnd);
     }
 
-    /**
-     * Get defaults
-     * <code>ECDomainParameters</code> for EC curve
-     * {@link http://www.secg.org/collateral/sec2_final.pdf}
-     *
-     * @param keyType
-     * @param keySize
-     * @return parameters for use with BouncyCastle API
-     * @see ECDomainParameters
-     */
-    static ECDomainParameters getDefaultsDomainParameters(byte keyType, short keySize) {
+  /**
+   * Get defaults <code>ECDomainParameters</code> for EC curve (see <a
+   * href="http://www.secg.org/collateral/sec2_final.pdf">here</a>)
+   *
+   * @param keyType
+   * @param keySize
+   * @return parameters for use with BouncyCastle API
+   * @see ECDomainParameters
+   */
+  static ECDomainParameters getDefaultsDomainParameters(byte keyType, short keySize) {
         String curveName = "";
         switch (keySize) {
             case 113:
@@ -267,7 +293,9 @@ public abstract class ECKeyImpl extends KeyImpl implements ECKey {
             case 256:
             case 384:
             case 521:
-                if ((keyType != KeyBuilder.TYPE_EC_FP_PRIVATE) & (keyType != KeyBuilder.TYPE_EC_FP_PUBLIC)) {
+        if (keyType != KeyBuilder.TYPE_EC_FP_PRIVATE
+            && keyType != KeyBuilder.TYPE_EC_FP_PRIVATE_TRANSIENT_DESELECT
+            && keyType != KeyBuilder.TYPE_EC_FP_PUBLIC) {
                     CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
                 }
                 curveName = "secp" + keySize + "r1";

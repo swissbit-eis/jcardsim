@@ -77,3 +77,16 @@ assertEquals(0x9000, response.getSW());
 **Third-party libraries**: [Legion of the Bouncy Castle Java](http://www.bouncycastle.org/java.html)
 
 **Trademarks**: Oracle, Java and Java Card are trademarks of Oracle Corporation.
+
+### How to build the jar
+
+In `fidointegration/java_testing/jcardsim`, run:
+
+```bash
+  export JC_CLASSIC_HOME=../../jc_sdks/jc305u4_kit
+  
+  mvn initialize
+  # skips the integration tests (currently not working) and also installs the source jar
+  # output path: target
+  mvn clean install -DskipTests -Dskip.integration.tests=true source:jar install:install
+```

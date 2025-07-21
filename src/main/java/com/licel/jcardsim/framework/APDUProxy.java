@@ -30,10 +30,11 @@ import javacard.framework.Util;
  * @see APDUProxy
  */
 public class APDUProxy {
-    // buffer size
-    private static final short BUFFER_SIZE = 260;
-    // buffer size (extended APDU) + (CLA,INS,P1,P2,0,Lc_Hi,Lc_Low,CData,Le_Hi,Le_Lo)
-    private static final int BUFFER_EXTENDED_SIZE = Short.MAX_VALUE + 10;
+  // buffer size of our NXP chip
+  private static final short BUFFER_SIZE = 271;
+  // buffer size: set to Short.MAX_VALUE to prevent casting errors
+  // todo find our real size
+  private static final int BUFFER_EXTENDED_SIZE = Short.MAX_VALUE;
     // input block size, for T0 protocol = 1
     private static final short T0_IBS = 1;
     // output block size, for T0 protocol = 258
@@ -144,14 +145,15 @@ public class APDUProxy {
         return (getProtocol() & javacard.framework.APDU.PROTOCOL_T1) == javacard.framework.APDU.PROTOCOL_T1 ? T1_BLOCK_SIZE : T0_OBS;
     }
 
-    /**
-     * Returns the ISO 7816 transport protocol type, T=1 or T=0 in the low nibble
-     * and the transport media in the upper nibble in use.
-     * @return he protocol media and type in progress
-     * Valid nibble codes are listed in PROTOCOL_ .. constants above.
-     * @see <CODE>PROTOCOL_T0</CODE>
-     */
-    public static byte getProtocol() {
+  /**
+   * Returns the ISO 7816 transport protocol type, T=1 or T=0 in the low nibble and the transport
+   * media in the upper nibble in use.
+   *
+   * @return the protocol media and type in progress Valid nibble codes are listed in PROTOCOL_ ..
+   *     constants above.
+   * @see <CODE>PROTOCOL_T0</CODE>
+   */
+  public static byte getProtocol() {
         APDU apdu = SimulatorSystem.instance().getCurrentAPDU();
         return (byte)((short[])getFieldInternal(apdu,"ramVars"))[ACTIVE_PROTOCOL];
     }

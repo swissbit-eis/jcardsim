@@ -70,4 +70,47 @@ public class MessageDigestProxy {
         InitializedMessageDigest instance = new MessageDigestImpl(algorithm);
         return instance;
     }
+
+  public static final class OneShotProxy extends MessageDigest {
+    private final MessageDigest internalMessageDigest;
+
+    private OneShotProxy(MessageDigest internalMessageDigest) {
+      this.internalMessageDigest = internalMessageDigest;
+    }
+
+    public static OneShotProxy open(byte algorithm) throws CryptoException {
+      return new OneShotProxy(MessageDigestProxy.getInstance(algorithm, false));
+    }
+
+    public void close() {
+      // todo
+    }
+
+    @Override
+    public byte getAlgorithm() {
+      return internalMessageDigest.getAlgorithm();
+    }
+
+    @Override
+    public byte getLength() {
+      return internalMessageDigest.getLength();
+    }
+
+    @Override
+    public short doFinal(
+        byte[] inBuff, short inOffset, short inLength, byte[] outBuff, short outOffset)
+        throws CryptoException {
+      return internalMessageDigest.doFinal(inBuff, inOffset, inLength, outBuff, outOffset);
+    }
+
+    @Override
+    public void update(byte[] var1, short var2, short var3) throws CryptoException {
+      throw new CryptoException(CryptoException.ILLEGAL_USE);
+    }
+
+    @Override
+    public void reset() {
+      internalMessageDigest.reset();
+    }
+  }
 }

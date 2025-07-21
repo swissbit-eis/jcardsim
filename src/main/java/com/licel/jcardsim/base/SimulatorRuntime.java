@@ -17,17 +17,14 @@ package com.licel.jcardsim.base;
 
 import com.licel.jcardsim.utils.AIDUtil;
 import com.licel.jcardsim.utils.BiConsumer;
-import com.licel.jcardsim.utils.ByteUtil;
-import javacard.framework.*;
-import javacardx.apdu.ExtendedLength;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import javacard.framework.*;
+import javacardx.apdu.ExtendedLength;
 
 /**
  * Base implementation of Java Card Runtime.
@@ -149,12 +146,13 @@ public class SimulatorRuntime {
         return previousAID;
     }
 
-    /**
-     * Return <code>Applet</code> by it's AID or null
-     * @param aid applet <code>AID</code>
-     * @return Applet or null
-     */
-    protected Applet getApplet(AID aid) {
+  /**
+   * Return <code>Applet</code> by its AID or null
+   *
+   * @param aid applet <code>AID</code>
+   * @return Applet or null
+   */
+  public Applet getApplet(AID aid) {
         if (aid == null) {
             return null;
         }
@@ -253,17 +251,19 @@ public class SimulatorRuntime {
             AID newAid = findAppletForSelectApdu(command, apduCase);
             if (newAid != null) {
                 deselect(lookupApplet(getAID()));
+        previousAID = currentAID;
                 currentAID = newAid;
                 applet = getApplet(getAID());
                 selecting = true;
-            }
-            else if (applet == null) {
-                Util.setShort(theSW, (short) 0, ISO7816.SW_APPLET_SELECT_FAILED);
+      } else {
+        new ISOException(ISO7816.SW_FILE_NOT_FOUND).printStackTrace();
+        Util.setShort(theSW, (short) 0, ISO7816.SW_FILE_NOT_FOUND);
                 return theSW;
             }
         }
 
         if (applet == null) {
+      new ISOException(ISO7816.SW_COMMAND_NOT_ALLOWED).printStackTrace();
             Util.setShort(theSW, (short) 0, ISO7816.SW_COMMAND_NOT_ALLOWED);
             return theSW;
         }
@@ -273,6 +273,7 @@ public class SimulatorRuntime {
                 usingExtendedAPDUs = true;
             }
             else {
+        new ISOException(ISO7816.SW_WRONG_LENGTH).printStackTrace();
                 Util.setShort(theSW, (short)0, ISO7816.SW_WRONG_LENGTH);
                 return theSW;
             }
@@ -303,10 +304,20 @@ public class SimulatorRuntime {
             applet.process(apdu);
             Util.setShort(theSW, (short) 0, (short) 0x9000);
         } catch (Throwable e) {
-            Util.setShort(theSW, (short) 0, ISO7816.SW_UNKNOWN);
-            if (e instanceof ISOException) {
-                Util.setShort(theSW, (short) 0, ((ISOException) e).getReason());
-            }
+      if (e instanceof ISOException) {
+        int reason = ((ISOException) e).getReason();
+        if (reason != ISO7816.SW_NO_ERROR
+            && ((short) reason & 0xFF00) != ISO7816.SW_BYTES_REMAINING_00) {
+          e.printStackTrace();
+        }
+      } else {
+        e.printStackTrace();
+      }
+
+      Util.setShort(theSW, (short) 0, ISO7816.SW_UNKNOWN);
+      if (e instanceof ISOException) {
+        Util.setShort(theSW, (short) 0, ((ISOException) e).getReason());
+      }
         }
         finally {
             selecting = false;
@@ -336,7 +347,7 @@ public class SimulatorRuntime {
         return false;
     }
 
-    protected AID findAppletForSelectApdu(byte[] selectApdu, ApduCase apduCase) {
+  public AID findAppletForSelectApdu(byte[] selectApdu, ApduCase apduCase) {
         if (apduCase == ApduCase.Case1 || apduCase == ApduCase.Case2) {
             // on a regular Smartcard we would select the CardManager applet
             // in this case we just select the first applet
@@ -543,12 +554,12 @@ public class SimulatorRuntime {
         return null;
     }
 
-    /**
-     * @see javacard.framework.JCSystem#isObjectDeletionSupported()
-     * @return always false
-     */
-    public boolean isObjectDeletionSupported() {
-        return false;
+  /**
+   * @see javacard.framework.JCSystem#isObjectDeletionSupported()
+   * @return always true
+   */
+  public boolean isObjectDeletionSupported() {
+    return true;
     }
 
     /**
@@ -578,7 +589,7 @@ public class SimulatorRuntime {
         this.previousActiveObject = previousActiveObject;
     }
 
-    protected static boolean isAppletSelectionApdu(byte[] apdu) {
+  public static boolean isAppletSelectionApdu(byte[] apdu) {
         final byte channelMask = (byte) 0xFC; // mask out %b000000xx
         final byte p2Mask = (byte) 0xE3; // mask out %b000xxx00
 
@@ -643,12 +654,7 @@ public class SimulatorRuntime {
             initMethod.invoke(null, bArray, bOffset, bLength);
         }
         catch (InvocationTargetException e) {
-            try {
-                ISOException isoException = (ISOException) e.getCause();
-                throw isoException;
-            } catch (ClassCastException cce){
-                throw new SystemException(SystemException.ILLEGAL_AID);
-            }
+      throw new RuntimeException("Reflective call of 'install' method failed", e);
         }
         catch (Exception e) {
             throw new SystemException(SystemException.ILLEGAL_AID);
