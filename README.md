@@ -83,8 +83,7 @@ assertEquals(0x9000, response.getSW());
 In `fidointegration/java_testing/jcardsim`, run:
 
 ```bash
-  export JC_CLASSIC_HOME=../../jc_sdks/jc305u4_kit
-  
+
   mvn initialize
   # skips the integration tests (currently not working) and also installs the source jar
   # output path: target

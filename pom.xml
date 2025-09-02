@@ -10,7 +10,7 @@
     <artifactId>jcardsim</artifactId>
     <name>Java Card Runime Environment Simulator</name>
     <description>jCardSim is open-source library contains implementation of Java Card API</description>
-    
+
     <organization>
         <name>Licel Corporation</name>
         <url>https://licelus.com</url>
@@ -23,7 +23,7 @@
             <organization>Licel Corporation</organization>
         </developer>
     </developers>
-    
+
     <licenses>
         <license>
             <name>Apache 2</name>
@@ -41,21 +41,21 @@
         <java.version>1.7</java.version>
         <jcApiVersion>3.0.5</jcApiVersion>
     </properties>
-    
+
     <distributionManagement>
         <repository>
             <id>github</id>
             <name>GitHub Licel JCardSim Apache Maven Packages</name>
             <url>https://maven.pkg.github.com/licel/jcardsim</url>
         </repository>
-    </distributionManagement>    
+    </distributionManagement>
 
     <scm>
         <connection>scm:git:git@github.com:licel/jcardsim.git</connection>
         <developerConnection>scm:git:git@github.com:licel/jcardsim.git</developerConnection>
         <url>git@github.com:licel/jcardsim.git</url>
     </scm>
-    
+
     <profiles>
         <profile>
             <id>sign</id>
@@ -79,7 +79,7 @@
                                 </goals>
                             </execution>
                         </executions>
-                    </plugin>                    
+                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
@@ -87,8 +87,8 @@
                         <configuration>
                             <author>false</author>
 			    <bottom><![CDATA[&nbsp;]]></bottom>
-                        </configuration>    
-                    </plugin>            
+                        </configuration>
+                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-jarsigner-plugin</artifactId>
@@ -114,12 +114,12 @@
                             <keypass>${keyPass}</keypass>
                             <storetype>${storeType}</storetype>
                         </configuration>
-                    </plugin>                
+                    </plugin>
                 </plugins>
             </build>
-        </profile> 
+        </profile>
     </profiles>
-  
+
     <dependencies>
         <dependency>
            <groupId>com.esotericsoftware</groupId>
@@ -178,6 +178,26 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>io.github.download-maven-plugin</groupId>
+                <artifactId>download-maven-plugin</artifactId>
+                <version>2.0.0</version>
+                <executions>
+                    <execution>
+                      <id>download-javacard-3-0-5-classic-jar</id>
+                      <phase>initialize</phase>
+                      <goals>
+                          <goal>wget</goal>
+                      </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <url>https://raw.githubusercontent.com/martinpaljak/oracle_javacard_sdks/refs/heads/master/jc305u4_kit/lib/api_classic.jar</url>
+                    <outputFileName>api_classic.jar</outputFileName>
+                    <outputDirectory>${project.build.directory}</outputDirectory>
+                    <md5>31fc63983055c676d9bad076cc9eddf4</md5>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-install-plugin</artifactId>
                 <version>2.5.2</version>
@@ -192,11 +212,11 @@
                             <artifactId>api_classic</artifactId>
                             <version>${jcApiVersion}</version>
                             <packaging>jar</packaging>
-                            <file>${env.JC_CLASSIC_HOME}/lib/api_classic.jar</file>
+                            <file>${project.build.directory}/api_classic.jar</file>
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>  
+            </plugin>
             <!-- extract java card api classes -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -220,7 +240,7 @@
                                     <includes>**/*.class</includes>
                                     <excludes>**/java/**/*.class</excludes>
                                 </artifactItem>
-                            </artifactItems>                                    
+                            </artifactItems>
                         </configuration>
                     </execution>
                 </executions>
@@ -232,7 +252,7 @@
 		<configuration>
 		    <argLine>-noverify</argLine>
 		</configuration>
-	    </plugin>                                      
+	    </plugin>
             <!-- patch -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
