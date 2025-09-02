@@ -27,6 +27,7 @@ import org.bouncycastle.crypto.encodings.PKCS1Encoding;
 import org.bouncycastle.crypto.engines.RSAEngine;
 import org.bouncycastle.crypto.paddings.BlockCipherPadding;
 import org.bouncycastle.crypto.params.ParametersWithRandom;
+import org.bouncycastle.crypto.DataLengthException;
 
 /*
  * Implementation <code>Cipher</code> with asymmetric keys based
@@ -77,13 +78,23 @@ public class AsymmetricCipherImpl extends Cipher {
         }
         ParametersWithRandom params = new ParametersWithRandom(((KeyWithParameters) theKey).getParameters(), new SecureRandomNullProvider());
         engine.init(theMode == MODE_ENCRYPT, params);
-    // encryption needs up to blockSize + 1 bytes
-    buffer =
-        JCSystem.makeTransientByteArray(
-            (short) (engine.getInputBlockSize() + 1), JCSystem.CLEAR_ON_DESELECT);
-        initMode = theMode;
-        bufferPos = 0;
-        isInitialized = true;
+        int inputBlockSize = engine.getInputBlockSize();
+        if (this.algorithm == ALG_RSA_NOPAD && theMode == MODE_ENCRYPT) {
+            // Raw RSA requires the input to be an integer that is smaller than the modulus value.
+            // Bouncy Castle enforces this by limiting input to key_size - 1 bytes,
+            // guaranteeing the input is always less than the modulus.
+            // JavaCard expects inputs to have the same size as the key but will
+            // fail if the resulting integer equals or exceeds the modulus value.
+            // Since Bouncy Castle handles full-size inputs correctly in its processBlock
+            // method, we only need to adjust the input block size to match JavaCard's
+            // expectation of key_size bytes.
+            inputBlockSize += 1;
+        }
+        buffer =
+            JCSystem.makeTransientByteArray((short) (inputBlockSize), JCSystem.CLEAR_ON_DESELECT);
+            initMode = theMode;
+            bufferPos = 0;
+            isInitialized = true;
     }
 
     public void init(Key theKey, byte theMode, byte[] bArray, short bOff, short bLen) throws CryptoException {
@@ -104,7 +115,7 @@ public class AsymmetricCipherImpl extends Cipher {
                 CryptoException.throwIt(CryptoException.ILLEGAL_USE);
             }
         }
-        else{
+        else {
             if ((inBuff.length - inOffset) < engine.getInputBlockSize()) {
                 CryptoException.throwIt(CryptoException.ILLEGAL_USE);
             }
@@ -122,7 +133,7 @@ public class AsymmetricCipherImpl extends Cipher {
             Util.arrayCopyNonAtomic(data, (short) 0, outBuff, outOffset, (short) data.length);
             bufferPos = 0;
             return (short) data.length;
-        } catch (InvalidCipherTextException ex) {
+        } catch (InvalidCipherTextException | DataLengthException ex) {
             CryptoException.throwIt(CryptoException.ILLEGAL_USE);
         }
         return -1;
