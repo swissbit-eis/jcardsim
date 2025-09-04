@@ -16,7 +16,10 @@
 package com.licel.jcardsim.crypto;
 
 import javacard.security.CryptoException;
+import javacard.security.Key;
+import javacard.security.MessageDigest;
 import javacard.security.Signature;
+import javacardx.crypto.Cipher;
 
 /**
  * ProxyClass for <code>Signature</code>
@@ -109,9 +112,163 @@ public class SignatureProxy {
         return instance;
     }
 
-    public static final Signature getInstance(byte messageDigestAlgorithm, byte cipherAlgorithm,
-            byte paddingAlgorithm, boolean externalAccess) throws CryptoException {
-        return new AsymmetricSignatureImpl(messageDigestAlgorithm, cipherAlgorithm, paddingAlgorithm);
+    private static byte getSignatureAlgorithm(
+        byte messageDigestAlgorithm, byte cipherAlgorithm, byte paddingAlgorithm) {
+        if (paddingAlgorithm != Cipher.PAD_NULL) {
+          throw new UnsupportedOperationException();
+        }
+        switch (cipherAlgorithm) {
+          case Signature.SIG_CIPHER_HMAC:
+            switch (messageDigestAlgorithm) {
+              case MessageDigest.ALG_SHA:
+                return Signature.ALG_HMAC_SHA1;
+              case MessageDigest.ALG_SHA_256:
+                return Signature.ALG_HMAC_SHA_256;
+              case MessageDigest.ALG_SHA_384:
+                return Signature.ALG_HMAC_SHA_384;
+              case MessageDigest.ALG_SHA_512:
+                return Signature.ALG_HMAC_SHA_512;
+            }
+            break;
+          case Signature.SIG_CIPHER_ECDSA:
+            switch (messageDigestAlgorithm) {
+              case MessageDigest.ALG_SHA_256:
+                return Signature.ALG_ECDSA_SHA_256;
+              case MessageDigest.ALG_SHA_384:
+                return Signature.ALG_ECDSA_SHA_384;
+              case MessageDigest.ALG_SHA_512:
+                return Signature.ALG_ECDSA_SHA_512;
+            }
+            break;
+        }
+        throw new UnsupportedOperationException();
     }
 
+    public static Signature getInstance(
+        byte messageDigestAlgorithm,
+        byte cipherAlgorithm,
+        byte paddingAlgorithm,
+        boolean externalAccess)
+        throws CryptoException {
+        byte signatureAlgorithm = getSignatureAlgorithm(messageDigestAlgorithm, cipherAlgorithm, paddingAlgorithm);
+        return getInstance(signatureAlgorithm, externalAccess);
+    }
+
+    public static final class OneShotProxy extends Signature {
+        public static OneShotProxy open(
+            byte messageDigestAlgorithm, byte cipherAlgorithm, byte paddingAlgorithm)
+            throws CryptoException {
+          return new OneShotProxy(
+              Signature.getInstance(messageDigestAlgorithm, cipherAlgorithm, paddingAlgorithm, false));
+        }
+
+        Signature internalSignature;
+
+        public OneShotProxy(Signature internalSignature) {
+            this.internalSignature = internalSignature;
+        }
+
+        public void close() {
+            internalSignature = null;
+        }
+
+        @Override
+        public void init(Key key, byte theMode) throws CryptoException {
+            internalSignature.init(key, theMode);
+        }
+
+        @Override
+        public void init(Key key, byte theMode, byte[] bArray, short bOff, short bLen)
+            throws CryptoException {
+            internalSignature.init(key, theMode, bArray, bOff, bLen);
+        }
+
+        @Override
+        public void setInitialDigest(
+            byte[] state,
+            short stateOffset,
+            short stateLength,
+            byte[] digestedMsgLenBuf,
+            short digestedMsgLenOffset,
+            short digestedMsgLenLength)
+            throws CryptoException {
+            internalSignature.setInitialDigest(
+                state,
+                stateOffset,
+                stateLength,
+                digestedMsgLenBuf,
+                digestedMsgLenOffset,
+                digestedMsgLenLength);
+        }
+
+        @Override
+        public byte getAlgorithm() {
+            return internalSignature.getAlgorithm();
+        }
+
+        @Override
+        public byte getMessageDigestAlgorithm() {
+            return internalSignature.getMessageDigestAlgorithm();
+        }
+
+        @Override
+        public byte getCipherAlgorithm() {
+            return internalSignature.getCipherAlgorithm();
+        }
+
+        @Override
+        public byte getPaddingAlgorithm() {
+            return internalSignature.getPaddingAlgorithm();
+        }
+
+        @Override
+        public short getLength() throws CryptoException {
+            return internalSignature.getLength();
+        }
+
+        @Override
+        public void update(byte[] bytes, short i, short i1) throws CryptoException {
+            throw new CryptoException(CryptoException.ILLEGAL_USE);
+        }
+
+        @Override
+        public short sign(
+            byte[] inBuff, short inOffset, short inLength, byte[] sigBuff, short sigOffset)
+            throws CryptoException {
+            return internalSignature.sign(inBuff, inOffset, inLength, sigBuff, sigOffset);
+        }
+
+        @Override
+        public short signPreComputedHash(
+            byte[] hashBuff, short hashOff, short hashLength, byte[] sigBuff, short sigOffset)
+            throws CryptoException {
+            return internalSignature.signPreComputedHash(
+                hashBuff, hashOff, hashLength, sigBuff, sigOffset);
+        }
+
+        @Override
+        public boolean verify(
+            byte[] inBuff,
+            short inOffset,
+            short inLength,
+            byte[] sigBuff,
+            short sigOffset,
+            short sigLength)
+            throws CryptoException {
+            return internalSignature.verify(inBuff, inOffset, inLength, sigBuff, sigOffset, sigLength);
+        }
+
+        @Override
+        public boolean verifyPreComputedHash(
+            byte[] hashBuff,
+            short hashOff,
+            short hashLength,
+            byte[] sigBuff,
+            short sigOffset,
+            short sigLength)
+            throws CryptoException {
+            return internalSignature.verifyPreComputedHash(
+                hashBuff, hashOff, hashLength, sigBuff, sigOffset, sigLength);
+        }
+    }
 }

@@ -15,8 +15,10 @@
  */
 package com.licel.jcardsim.framework;
 
+import com.licel.jcardsim.base.SimulatorRuntime;
 import com.licel.jcardsim.base.SimulatorSystem;
 import com.licel.jcardsim.utils.BiConsumer;
+import java.util.Objects;
 import javacard.framework.AID;
 import javacard.framework.Applet;
 import javacard.framework.ISO7816;
@@ -241,5 +243,18 @@ public class AppletProxy {
     protected final boolean selectingApplet() {
         return SimulatorSystem.instance().isAppletSelecting(this);
     }
-    
+
+    /**
+     * This method is used by the applet's <code>process()</code> method or the <code>select()</code>
+     * method or applet's <code>deselect()</code> method to determine if it itself is being
+     * re-selected on this logical channel. This method returns <code>true</code> if and only if the
+     * currently selected applet was deselected on this logical channel just prior to the current
+     * selection.
+     *
+     * @return <code>true</code> if this applet is being re-selected
+     */
+    protected static boolean reSelectingApplet() {
+        SimulatorRuntime instance = SimulatorSystem.instance();
+        return Objects.equals(instance.getAID(), instance.getPreviousContextAID());
+    }
 }

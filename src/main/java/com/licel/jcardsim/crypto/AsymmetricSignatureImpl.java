@@ -20,11 +20,10 @@ import javacard.framework.JCSystem;
 import javacard.framework.Util;
 import javacard.security.CryptoException;
 import javacard.security.Key;
+import javacard.security.MessageDigest;
 import javacard.security.Signature;
 import javacard.security.SignatureMessageRecovery;
-import javacard.security.MessageDigest;
 import javacardx.crypto.Cipher;
-
 import org.bouncycastle.crypto.DataLengthException;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.Signer;

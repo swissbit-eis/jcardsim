@@ -29,12 +29,13 @@ import org.bouncycastle.crypto.params.KeyParameter;
 
 /**
  * Implementation of secret key.
+ *
  * @see DESKey
  * @see AESKey
  * @see HMACKey
  * @see KoreanSEEDKey
  */
-public class SymmetricKeyImpl extends KeyImpl implements DESKey, AESKey, HMACKey, KoreanSEEDKey {
+public class SymmetricKeyImpl extends KeyImpl {
 
     protected ByteContainer key;
 

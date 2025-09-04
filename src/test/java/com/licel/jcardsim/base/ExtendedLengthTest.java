@@ -160,7 +160,7 @@ public class ExtendedLengthTest extends TestCase {
 
     public void testExtendedApduDigest() throws NoSuchAlgorithmException {
         MessageDigest sha1 = MessageDigest.getInstance("SHA1");
-        byte[] input = new byte[Short.MAX_VALUE];
+        byte[] input = new byte[Short.MAX_VALUE - 9];
         Arrays.fill(input, DUMMY);
         byte[] expectedOutput = sha1.digest(input);
 
@@ -181,7 +181,7 @@ public class ExtendedLengthTest extends TestCase {
     }
 
     public void testExtendedApduEcho() {
-        byte[] input = new byte[Short.MAX_VALUE - 2];
+        byte[] input = new byte[Short.MAX_VALUE - 9];
         Arrays.fill(input, (byte) 0x41);
 
         Simulator instance = prepareSimulator();

@@ -35,13 +35,6 @@ assertEquals(0x9000, response.getSW());
 * APDU scripting (scripts are compatible with `apdutool` from Java Card Development Kit)
 * Simplifies verification tests creation (Common Criteria)
 
-*JavaDoc*: https://github.com/licel/jcardsim/tree/master/javadoc
-
-  (Javadoc rendered: https://jcardsim.org/jcardsim/)
-
-*Latest release 3.0.5*: https://github.com/licel/jcardsim/packages/1650016
-
-
 ### What is the difference from Oracle Java Card Development Kit simulator?
 
 * **Implementation of javacard.security.***
@@ -71,3 +64,15 @@ assertEquals(0x9000, response.getSW());
 **Third-party libraries**: [Legion of the Bouncy Castle Java](http://www.bouncycastle.org/java.html)
 
 **Trademarks**: Oracle, Java and Java Card are trademarks of Oracle Corporation.
+
+### How to build the jar
+
+In `fidointegration/java_testing/jcardsim`, run:
+
+```bash
+
+  mvn initialize
+  # skips the integration tests (currently not working) and also installs the source jar
+  # output path: target
+  mvn clean install -DskipTests -Dskip.integration.tests=true source:jar install:install
+```

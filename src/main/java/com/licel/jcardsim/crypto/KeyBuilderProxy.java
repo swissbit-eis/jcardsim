@@ -15,10 +15,10 @@
  */
 package com.licel.jcardsim.crypto;
 
+import javacard.framework.JCSystem;
 import javacard.security.CryptoException;
 import javacard.security.Key;
 import javacard.security.KeyBuilder;
-import javacard.security.KoreanSEEDKey;
 
 /**
  * ProxyClass for <code>KeyBuilder</code>
@@ -55,7 +55,7 @@ public class KeyBuilderProxy {
                 if (keyLength != 64 && keyLength != 128 && keyLength != 192) {
                     CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
                 }
-                key = new SymmetricKeyImpl(keyType, keyLength);
+                key = new DESKeyImpl(keyType, keyLength);
                 break;
 
             // rsa
@@ -95,6 +95,10 @@ public class KeyBuilderProxy {
                 key = new ECPrivateKeyImpl(keyType, keyLength);
                 break;
 
+            case KeyBuilder.TYPE_EC_FP_PRIVATE_TRANSIENT_DESELECT:
+                key = new ECPrivateKeyImpl(keyType, keyLength, JCSystem.MEMORY_TYPE_TRANSIENT_DESELECT);
+                break;
+
             // aes
             case KeyBuilder.TYPE_AES_TRANSIENT_RESET:
             case KeyBuilder.TYPE_AES_TRANSIENT_DESELECT:
@@ -102,23 +106,23 @@ public class KeyBuilderProxy {
                 if (keyLength != 128 && keyLength != 192 && keyLength != 256) {
                     CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
                 }
-                key = new SymmetricKeyImpl(keyType, keyLength);
+                key = new AESKeyImpl(keyType, keyLength);
                 break;
 
             // hmac
             case KeyBuilder.TYPE_HMAC_TRANSIENT_RESET:
             case KeyBuilder.TYPE_HMAC_TRANSIENT_DESELECT:
             case KeyBuilder.TYPE_HMAC:
-                key = new SymmetricKeyImpl(keyType, keyLength);
+                key = new HMACKeyImpl(keyType, keyLength);
                 break;
-                
+
             // dh
             case KeyBuilder.TYPE_DH_PUBLIC_TRANSIENT_RESET:
             case KeyBuilder.TYPE_DH_PUBLIC_TRANSIENT_DESELECT:
             case KeyBuilder.TYPE_DH_PUBLIC:
                 key = new DHPublicKeyImpl(keyLength);
                 break;
-                
+
             case KeyBuilder.TYPE_DH_PRIVATE_TRANSIENT_RESET:
             case KeyBuilder.TYPE_DH_PRIVATE_TRANSIENT_DESELECT:
             case KeyBuilder.TYPE_DH_PRIVATE:
@@ -131,14 +135,14 @@ public class KeyBuilderProxy {
                 if (keyLength != KeyBuilder.LENGTH_KOREAN_SEED_128) {
                     CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
                 }
-                key = new SymmetricKeyImpl(keyType, keyLength);
-
+                key = new KoreanSEEDKeyImpl(keyType, keyLength);
                 break;
+
             default:
                 CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
                 break;
         }
         return key;
     }
-    
+
 }

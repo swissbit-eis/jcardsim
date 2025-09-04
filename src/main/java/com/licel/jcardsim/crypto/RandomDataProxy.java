@@ -15,13 +15,14 @@
  */
 package com.licel.jcardsim.crypto;
 
-import javacard.security.CryptoException;
-import javacard.security.RandomData;
+import static javacard.security.RandomData.ALG_FAST;
+import static javacard.security.RandomData.ALG_KEYGENERATION;
 import static javacard.security.RandomData.ALG_PSEUDO_RANDOM;
 import static javacard.security.RandomData.ALG_SECURE_RANDOM;
 import static javacard.security.RandomData.ALG_TRNG;
-import static javacard.security.RandomData.ALG_FAST;
-import static javacard.security.RandomData.ALG_KEYGENERATION;
+
+import javacard.security.CryptoException;
+import javacard.security.RandomData;
 
 /**
  * ProxyClass for <code>RandomData</code>
@@ -48,9 +49,46 @@ public class RandomDataProxy {
                 instance = new RandomDataImpl(algorithm);
                 break;
             default:
-                CryptoException.throwIt((short) 3);
+                CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
                 break;
         }
         return instance;
+    }
+
+    public static final class OneShotProxy extends RandomData {
+      private RandomData internalInstance;
+
+      private OneShotProxy(RandomData internalInstance) {
+          this.internalInstance = internalInstance;
+      }
+
+      public static OneShotProxy open(byte algorithm) throws CryptoException {
+          return new OneShotProxy(RandomDataProxy.getInstance(algorithm));
+      }
+
+      public void close() {
+          internalInstance = null;
+      }
+
+      @Override
+      public byte getAlgorithm() {
+          return internalInstance.getAlgorithm();
+      }
+
+      @Deprecated
+      @Override
+      public void generateData(byte[] buffer, short offset, short length) throws CryptoException {
+          internalInstance.generateData(buffer, offset, length);
+      }
+
+      @Override
+      public short nextBytes(byte[] buffer, short offset, short length) throws CryptoException {
+          return internalInstance.nextBytes(buffer, offset, length);
+      }
+
+      @Override
+      public void setSeed(byte[] buffer, short offset, short length) {
+          internalInstance.setSeed(buffer, offset, length);
+      }
     }
 }

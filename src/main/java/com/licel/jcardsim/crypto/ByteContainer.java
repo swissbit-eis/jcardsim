@@ -106,18 +106,16 @@ public final class ByteContainer {
      * @param length length of data in byte array
      */
     public void setBytes(byte[] buff, short offset, short length) {
-        if (data == null) {
-            switch (memoryType) {
-                case JCSystem.MEMORY_TYPE_TRANSIENT_DESELECT:
-                    data = JCSystem.makeTransientByteArray(length, JCSystem.CLEAR_ON_DESELECT);
-                    break;
-                case JCSystem.MEMORY_TYPE_TRANSIENT_RESET:
-                    data = JCSystem.makeTransientByteArray(length, JCSystem.CLEAR_ON_DESELECT);
-                    break;
-                default:
-                    data = new byte[length];
-                    break;
-            }
+        switch (memoryType) {
+            case JCSystem.MEMORY_TYPE_TRANSIENT_DESELECT:
+                data = JCSystem.makeTransientByteArray(length, JCSystem.CLEAR_ON_DESELECT);
+                break;
+            case JCSystem.MEMORY_TYPE_TRANSIENT_RESET:
+                data = JCSystem.makeTransientByteArray(length, JCSystem.CLEAR_ON_DESELECT);
+                break;
+            default:
+                data = new byte[length];
+                break;
         }
         Util.arrayCopy(buff, offset, data, (short) 0, length);
         // current length
