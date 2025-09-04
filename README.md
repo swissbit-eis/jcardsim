@@ -1,11 +1,5 @@
-jCardSim (Official repo of the [jCardSim](http://jcardsim.org) project)
+jCardSim (Fork of the [jCardSim](http://jcardsim.org) project)
 ========
-
-### Congratulations! jCardSim has won [Duke's Choice 2013 Award](https://www.java.net/dukeschoice/2013)!
-
-![alt text](https://licelus.com/wp-content/uploads/DCA2013_Badge_Winner.jpg "jCardSim is a winner of Duke's Choice 2013")
-
-**Please note** that we moved our code repository from Google Code to GitHub.
 
 jCardSim is an open source simulator for Java Card, v3.0.5:
 
@@ -40,13 +34,6 @@ assertEquals(0x9000, response.getSW());
 * Emulation of Java Card Terminal, ability to use `javax.smartcardio`
 * APDU scripting (scripts are compatible with `apdutool` from Java Card Development Kit)
 * Simplifies verification tests creation (Common Criteria)
-
-*JavaDoc*: https://github.com/licel/jcardsim/tree/master/javadoc
-
-  (Javadoc rendered: https://jcardsim.org/jcardsim/)
-
-*Latest release 3.0.5*: https://github.com/licel/jcardsim/packages/1650016
-
 
 ### What is the difference from Oracle Java Card Development Kit simulator?
 
