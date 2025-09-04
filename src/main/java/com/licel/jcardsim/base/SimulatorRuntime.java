@@ -256,14 +256,12 @@ public class SimulatorRuntime {
                 applet = getApplet(getAID());
                 selecting = true;
             } else {
-                new ISOException(ISO7816.SW_FILE_NOT_FOUND).printStackTrace();
                 Util.setShort(theSW, (short) 0, ISO7816.SW_FILE_NOT_FOUND);
                 return theSW;
             }
         }
 
         if (applet == null) {
-      new ISOException(ISO7816.SW_COMMAND_NOT_ALLOWED).printStackTrace();
             Util.setShort(theSW, (short) 0, ISO7816.SW_COMMAND_NOT_ALLOWED);
             return theSW;
         }
@@ -273,7 +271,6 @@ public class SimulatorRuntime {
                 usingExtendedAPDUs = true;
             }
             else {
-        new ISOException(ISO7816.SW_WRONG_LENGTH).printStackTrace();
                 Util.setShort(theSW, (short)0, ISO7816.SW_WRONG_LENGTH);
                 return theSW;
             }
@@ -304,20 +301,10 @@ public class SimulatorRuntime {
             applet.process(apdu);
             Util.setShort(theSW, (short) 0, (short) 0x9000);
         } catch (Throwable e) {
-      if (e instanceof ISOException) {
-        int reason = ((ISOException) e).getReason();
-        if (reason != ISO7816.SW_NO_ERROR
-            && ((short) reason & 0xFF00) != ISO7816.SW_BYTES_REMAINING_00) {
-          e.printStackTrace();
-        }
-      } else {
-        e.printStackTrace();
-      }
-
-      Util.setShort(theSW, (short) 0, ISO7816.SW_UNKNOWN);
-      if (e instanceof ISOException) {
-        Util.setShort(theSW, (short) 0, ((ISOException) e).getReason());
-      }
+            Util.setShort(theSW, (short) 0, ISO7816.SW_UNKNOWN);
+            if (e instanceof ISOException) {
+                Util.setShort(theSW, (short) 0, ((ISOException) e).getReason());
+            }
         }
         finally {
             selecting = false;
@@ -347,7 +334,7 @@ public class SimulatorRuntime {
         return false;
     }
 
-  public AID findAppletForSelectApdu(byte[] selectApdu, ApduCase apduCase) {
+    public AID findAppletForSelectApdu(byte[] selectApdu, ApduCase apduCase) {
         if (apduCase == ApduCase.Case1 || apduCase == ApduCase.Case2) {
             // on a regular Smartcard we would select the CardManager applet
             // in this case we just select the first applet
@@ -554,12 +541,12 @@ public class SimulatorRuntime {
         return null;
     }
 
-  /**
-   * @see javacard.framework.JCSystem#isObjectDeletionSupported()
-   * @return always true
-   */
-  public boolean isObjectDeletionSupported() {
-    return true;
+    /**
+     * @see javacard.framework.JCSystem#isObjectDeletionSupported()
+     * @return always true
+     */
+    public boolean isObjectDeletionSupported() {
+        return true;
     }
 
     /**
@@ -589,7 +576,7 @@ public class SimulatorRuntime {
         this.previousActiveObject = previousActiveObject;
     }
 
-  public static boolean isAppletSelectionApdu(byte[] apdu) {
+    public static boolean isAppletSelectionApdu(byte[] apdu) {
         final byte channelMask = (byte) 0xFC; // mask out %b000000xx
         final byte p2Mask = (byte) 0xE3; // mask out %b000xxx00
 
@@ -654,7 +641,7 @@ public class SimulatorRuntime {
             initMethod.invoke(null, bArray, bOffset, bLength);
         }
         catch (InvocationTargetException e) {
-      throw new RuntimeException("Reflective call of 'install' method failed", e);
+            throw new RuntimeException("Reflective call of 'install' method failed", e);
         }
         catch (Exception e) {
             throw new SystemException(SystemException.ILLEGAL_AID);

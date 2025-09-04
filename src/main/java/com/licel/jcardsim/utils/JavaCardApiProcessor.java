@@ -63,48 +63,48 @@ public class JavaCardApiProcessor {
         proxyClass(buildDir, "com.licel.jcardsim.framework.OwnerPINProxy", "javacard.framework.OwnerPIN", false);
         proxyClass(buildDir, "com.licel.jcardsim.crypto.ChecksumProxy", "javacard.security.Checksum", true);
         proxyClass(buildDir, "com.licel.jcardsim.crypto.CipherProxy", "javacardx.crypto.Cipher", true);
-    HashMap<String, String> cipherProxyToCipher = new HashMap<>();
-    cipherProxyToCipher.put(
-        "com.licel.jcardsim.crypto.CipherProxy".replace(".", "/"),
-        "javacardx.crypto.Cipher".replace(".", "/"));
-    copyClass(
-        buildDir,
-        "com.licel.jcardsim.crypto.CipherProxy$OneShotProxy",
-        "javacardx.crypto.Cipher$OneShot",
-        cipherProxyToCipher);
-        proxyClass(buildDir, "com.licel.jcardsim.crypto.KeyAgreementProxy", "javacard.security.KeyAgreement", true);
-        proxyClass(buildDir, "com.licel.jcardsim.crypto.KeyPairProxy", "javacard.security.KeyPair", false);
-        proxyClass(buildDir, "com.licel.jcardsim.crypto.KeyBuilderProxy", "javacard.security.KeyBuilder", true);
-        proxyClass(buildDir, "com.licel.jcardsim.crypto.MessageDigestProxy", "javacard.security.MessageDigest", true);
-    HashMap<String, String> messageDigestProxyToMessageDigest = new HashMap<>();
-    messageDigestProxyToMessageDigest.put(
-        "com.licel.jcardsim.crypto.MessageDigestProxy".replace(".", "/"),
-        "javacard.security.MessageDigest".replace(".", "/"));
-    copyClass(
-        buildDir,
-        "com.licel.jcardsim.crypto.MessageDigestProxy$OneShotProxy",
-        "javacard.security.MessageDigest$OneShot",
-        messageDigestProxyToMessageDigest);
-        proxyClass(buildDir, "com.licel.jcardsim.crypto.RandomDataProxy", "javacard.security.RandomData", true);
-    HashMap<String, String> randomDataProxyToRandomData = new HashMap();
-    randomDataProxyToRandomData.put(
-        "com.licel.jcardsim.crypto.RandomDataProxy".replace(".", "/"),
-        "javacard.security.RandomData".replace(".", "/"));
-    copyClass(
-        buildDir,
-        "com.licel.jcardsim.crypto.RandomDataProxy$OneShotProxy",
-        "javacard.security.RandomData$OneShot",
-        randomDataProxyToRandomData);
-        proxyClass(buildDir, "com.licel.jcardsim.crypto.SignatureProxy", "javacard.security.Signature", true);
-    HashMap<String, String> signatureProxyToSignature = new HashMap<>();
-    signatureProxyToSignature.put(
-        "com.licel.jcardsim.crypto.SignatureProxy".replace(".", "/"),
-        "javacard.security.Signature".replace(".", "/"));
-    copyClass(
-        buildDir,
-        "com.licel.jcardsim.crypto.SignatureProxy$OneShotProxy",
-        "javacard.security.Signature$OneShot",
-        signatureProxyToSignature);
+        HashMap<String, String> cipherProxyToCipher = new HashMap<>();
+        cipherProxyToCipher.put(
+            "com.licel.jcardsim.crypto.CipherProxy".replace(".", "/"),
+            "javacardx.crypto.Cipher".replace(".", "/"));
+        copyClass(
+            buildDir,
+            "com.licel.jcardsim.crypto.CipherProxy$OneShotProxy",
+            "javacardx.crypto.Cipher$OneShot",
+            cipherProxyToCipher);
+            proxyClass(buildDir, "com.licel.jcardsim.crypto.KeyAgreementProxy", "javacard.security.KeyAgreement", true);
+            proxyClass(buildDir, "com.licel.jcardsim.crypto.KeyPairProxy", "javacard.security.KeyPair", false);
+            proxyClass(buildDir, "com.licel.jcardsim.crypto.KeyBuilderProxy", "javacard.security.KeyBuilder", true);
+            proxyClass(buildDir, "com.licel.jcardsim.crypto.MessageDigestProxy", "javacard.security.MessageDigest", true);
+        HashMap<String, String> messageDigestProxyToMessageDigest = new HashMap<>();
+        messageDigestProxyToMessageDigest.put(
+            "com.licel.jcardsim.crypto.MessageDigestProxy".replace(".", "/"),
+            "javacard.security.MessageDigest".replace(".", "/"));
+        copyClass(
+            buildDir,
+            "com.licel.jcardsim.crypto.MessageDigestProxy$OneShotProxy",
+            "javacard.security.MessageDigest$OneShot",
+            messageDigestProxyToMessageDigest);
+            proxyClass(buildDir, "com.licel.jcardsim.crypto.RandomDataProxy", "javacard.security.RandomData", true);
+        HashMap<String, String> randomDataProxyToRandomData = new HashMap();
+        randomDataProxyToRandomData.put(
+            "com.licel.jcardsim.crypto.RandomDataProxy".replace(".", "/"),
+            "javacard.security.RandomData".replace(".", "/"));
+        copyClass(
+            buildDir,
+            "com.licel.jcardsim.crypto.RandomDataProxy$OneShotProxy",
+            "javacard.security.RandomData$OneShot",
+            randomDataProxyToRandomData);
+            proxyClass(buildDir, "com.licel.jcardsim.crypto.SignatureProxy", "javacard.security.Signature", true);
+        HashMap<String, String> signatureProxyToSignature = new HashMap<>();
+        signatureProxyToSignature.put(
+            "com.licel.jcardsim.crypto.SignatureProxy".replace(".", "/"),
+            "javacard.security.Signature".replace(".", "/"));
+        copyClass(
+            buildDir,
+            "com.licel.jcardsim.crypto.SignatureProxy$OneShotProxy",
+            "javacard.security.Signature$OneShot",
+            signatureProxyToSignature);
         proxyExceptionClass(buildDir, "javacard.framework.service.ServiceException");
         proxyExceptionClass(buildDir, "javacard.security.CryptoException");
         proxyExceptionClass(buildDir, "javacardx.external.ExternalException");
@@ -128,13 +128,13 @@ public class JavaCardApiProcessor {
         crTarget.accept(cnTarget, 0);
 
         ClassNode cnProxyRemapped = new ClassNode();
-    HashMap<String, String> map = new HashMap<>();
+        HashMap<String, String> map = new HashMap<>();
         map.put(cnProxy.name, cnTarget.name);
-    // inner classes
-    for (int i = 1; i < 10; i++) {
-      map.put(cnProxy.name + "$" + i, cnTarget.name + "$" + i);
+        // inner classes
+        for (int i = 1; i < 10; i++) {
+            map.put(cnProxy.name + "$" + i, cnTarget.name + "$" + i);
         }
-    map.put(cnProxy.name + "$OneShotProxy", cnTarget.name + "$OneShot");
+        map.put(cnProxy.name + "$OneShotProxy", cnTarget.name + "$OneShot");
 
         ClassRemapper ra = new ClassRemapper(cnProxyRemapped, new SimpleRemapper(map));
         cnProxy.accept(ra);
@@ -147,8 +147,8 @@ public class JavaCardApiProcessor {
         FileOutputStream fos = new FileOutputStream(new File(buildDir, targetClassFile.replace(".", File.separator) + ".class"));
         fos.write(cw.toByteArray());
         fos.close();
-    // remove proxy class
-    proxyFile.delete();
+        // remove proxy class
+        proxyFile.delete();
     }
 
     public static void copyClass(File buildDir, String proxyClassFile, String targetClassName, Map map) throws IOException {
@@ -233,7 +233,6 @@ public class JavaCardApiProcessor {
             mv.visitMaxs(3, 1);
             mv.visitEnd();
         }
-
     }
 
     static class ClassAdapter extends ClassNode implements Opcodes {

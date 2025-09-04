@@ -244,17 +244,17 @@ public class AppletProxy {
         return SimulatorSystem.instance().isAppletSelecting(this);
     }
 
-  /**
-   * This method is used by the applet's <code>process()</code> method or the <code>select()</code>
-   * method or applet's <code>deselect()</code> method to determine if it itself is being
-   * re-selected on this logical channel. This method returns <code>true</code> if and only if the
-   * currently selected applet was deselected on this logical channel just prior to the current
-   * selection.
-   *
-   * @return <code>true</code> if this applet is being re-selected
-   */
-  protected static boolean reSelectingApplet() {
-    SimulatorRuntime instance = SimulatorSystem.instance();
-    return Objects.equals(instance.getAID(), instance.getPreviousContextAID());
-  }
+    /**
+     * This method is used by the applet's <code>process()</code> method or the <code>select()</code>
+     * method or applet's <code>deselect()</code> method to determine if it itself is being
+     * re-selected on this logical channel. This method returns <code>true</code> if and only if the
+     * currently selected applet was deselected on this logical channel just prior to the current
+     * selection.
+     *
+     * @return <code>true</code> if this applet is being re-selected
+     */
+    protected static boolean reSelectingApplet() {
+        SimulatorRuntime instance = SimulatorSystem.instance();
+        return Objects.equals(instance.getAID(), instance.getPreviousContextAID());
+    }
 }
