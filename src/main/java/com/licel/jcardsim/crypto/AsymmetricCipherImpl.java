@@ -92,9 +92,9 @@ public class AsymmetricCipherImpl extends Cipher {
         }
         buffer =
             JCSystem.makeTransientByteArray((short) (inputBlockSize), JCSystem.CLEAR_ON_DESELECT);
-            initMode = theMode;
-            bufferPos = 0;
-            isInitialized = true;
+        initMode = theMode;
+        bufferPos = 0;
+        isInitialized = true;
     }
 
     public void init(Key theKey, byte theMode, byte[] bArray, short bOff, short bLen) throws CryptoException {

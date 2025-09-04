@@ -146,13 +146,13 @@ public class SimulatorRuntime {
         return previousAID;
     }
 
-  /**
-   * Return <code>Applet</code> by its AID or null
-   *
-   * @param aid applet <code>AID</code>
-   * @return Applet or null
-   */
-  public Applet getApplet(AID aid) {
+    /**
+     * Return <code>Applet</code> by its AID or null
+     *
+     * @param aid applet <code>AID</code>
+     * @return Applet or null
+     */
+    public Applet getApplet(AID aid) {
         if (aid == null) {
             return null;
         }
@@ -251,13 +251,13 @@ public class SimulatorRuntime {
             AID newAid = findAppletForSelectApdu(command, apduCase);
             if (newAid != null) {
                 deselect(lookupApplet(getAID()));
-        previousAID = currentAID;
+                previousAID = currentAID;
                 currentAID = newAid;
                 applet = getApplet(getAID());
                 selecting = true;
-      } else {
-        new ISOException(ISO7816.SW_FILE_NOT_FOUND).printStackTrace();
-        Util.setShort(theSW, (short) 0, ISO7816.SW_FILE_NOT_FOUND);
+            } else {
+                new ISOException(ISO7816.SW_FILE_NOT_FOUND).printStackTrace();
+                Util.setShort(theSW, (short) 0, ISO7816.SW_FILE_NOT_FOUND);
                 return theSW;
             }
         }

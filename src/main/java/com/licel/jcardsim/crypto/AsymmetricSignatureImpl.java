@@ -64,7 +64,7 @@ public class AsymmetricSignatureImpl extends Signature implements SignatureMessa
         this(algorithm, (byte) 0, (byte) 0);
     }
 
-  public AsymmetricSignatureImpl(byte algorithm, byte cipherAlgorithm, byte paddingAlgorithm) {
+    public AsymmetricSignatureImpl(byte algorithm, byte cipherAlgorithm, byte paddingAlgorithm) {
         this.algorithm = algorithm;
         isImplicitTrailer = false;
         this.cipherAlgorithm = cipherAlgorithm;

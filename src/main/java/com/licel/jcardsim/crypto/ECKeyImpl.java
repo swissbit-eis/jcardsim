@@ -38,11 +38,11 @@ import org.bouncycastle.math.ec.ECCurve;
  */
 public abstract class ECKeyImpl extends KeyImpl implements ECKey {
 
-  protected final ByteContainer a;
-  protected final ByteContainer b;
-  protected final ByteContainer g;
-  protected final ByteContainer r;
-  protected final ByteContainer fp;
+    protected final ByteContainer a;
+    protected final ByteContainer b;
+    protected final ByteContainer g;
+    protected final ByteContainer r;
+    protected final ByteContainer fp;
     protected short k;
     protected short e1;
     protected short e2;
@@ -58,28 +58,28 @@ public abstract class ECKeyImpl extends KeyImpl implements ECKey {
      * @see KeyBuilder
      */
     public ECKeyImpl(byte keyType, short keySize) {
-    this(
-        keyType,
-        keySize,
-        JCSystem.MEMORY_TYPE_PERSISTENT,
-        getDefaultsDomainParameters(keyType, keySize));
-  }
+        this(
+            keyType,
+            keySize,
+            JCSystem.MEMORY_TYPE_PERSISTENT,
+            getDefaultsDomainParameters(keyType, keySize));
+    }
 
-  public ECKeyImpl(byte keyType, short keySize, byte memoryType) {
-    this(keyType, keySize, memoryType, getDefaultsDomainParameters(keyType, keySize));
-  }
+    public ECKeyImpl(byte keyType, short keySize, byte memoryType) {
+        this(keyType, keySize, memoryType, getDefaultsDomainParameters(keyType, keySize));
+    }
 
-  public ECKeyImpl(
-      byte keyType, short keySize, byte memoryType, ECDomainParameters domainParameters) {
-    this.size = keySize;
-    this.type = keyType;
-    a = new ByteContainer(memoryType);
-    b = new ByteContainer(memoryType);
-    g = new ByteContainer(memoryType);
-    r = new ByteContainer(memoryType);
-    fp = new ByteContainer(memoryType);
-    setDomainParameters(domainParameters);
-  }
+    public ECKeyImpl(
+            byte keyType, short keySize, byte memoryType, ECDomainParameters domainParameters) {
+        this.size = keySize;
+        this.type = keyType;
+        a = new ByteContainer(memoryType);
+        b = new ByteContainer(memoryType);
+        g = new ByteContainer(memoryType);
+        r = new ByteContainer(memoryType);
+        fp = new ByteContainer(memoryType);
+        setDomainParameters(domainParameters);
+    }
 
     /**
      * Construct and initialize ecc key with ECKeyParameters. Use in KeyPairImpl
