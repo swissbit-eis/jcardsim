@@ -154,6 +154,17 @@ public class UtilProxy {
         return bOff;
     }
 
+    public static final short arrayFill(byte bArray[], short bOff, short bLen, byte bValue)
+    {
+        if (bArray.length < (bOff + bLen)) {
+            throw new ArrayIndexOutOfBoundsException();
+        }
+        for (short i = 0; i < bLen; i++) {
+            bArray[bOff + i] = bValue;
+        }
+        return (short) (bOff + bLen);
+    }
+
     /**
      * Compares an array from the specified source array,
      * beginning at the specified position,
