@@ -102,55 +102,60 @@ public class KeyAgreementImpl extends KeyAgreement {
             short publicLength,
             byte[] secret,
             short secretOffset) throws CryptoException {
-        if(algorithm == ALG_DH_PLAIN) {
-            BigInteger pubKey = (new ByteContainer(publicData, publicOffset, publicLength)).getBigInteger();
-            DHParameters baseParam = ((DHKeyParameters) ((DHPrivateKeyImpl) privateKey).getParameters()).getParameters();
-            BigInteger retAgreement = engine.calculateAgreement(new DHPublicKeyParameters(pubKey, baseParam));
-            return (new ByteContainer(retAgreement)).getBytes(secret, secretOffset);
-        } else {
-            byte[] publicKey = new byte[publicLength];
-            Util.arrayCopyNonAtomic(publicData, publicOffset, publicKey, (short) 0, publicLength);
-            ECPublicKeyParameters ecp = new ECPublicKeyParameters(
-                    ((ECPrivateKeyParameters) ((ECPrivateKeyImpl) privateKey).getParameters()).getParameters().getCurve().decodePoint(publicKey), ((ECPrivateKeyParameters) ((ECPrivateKeyImpl) privateKey).getParameters()).getParameters());
-            byte[] num = engine.calculateAgreement(ecp).toByteArray();
-
-            byte[] result;
-            if (algorithm != ALG_EC_SVDP_DH_PLAIN_XY && algorithm != ALG_EC_PACE_GM) {
-                // truncate/zero-pad to field size as per the spec:
-                int fieldSize = ((ECPrivateKeyImpl) privateKey).getDomainParameters().getCurve().getFieldSize();
-                result = new byte[(fieldSize + 7) / 8];
-                int numBytes = Math.min(num.length, result.length);
-                Util.arrayCopyNonAtomic(
-                        num,    (short)(   num.length - numBytes),
-                        result, (short)(result.length - numBytes),
-                        (short)numBytes);
-                Util.arrayFillNonAtomic(result, (short)0, (short)(result.length - numBytes), (byte)0);
+        try {
+            if (algorithm == ALG_DH_PLAIN) {
+                BigInteger pubKey = (new ByteContainer(publicData, publicOffset, publicLength)).getBigInteger();
+                DHParameters baseParam = ((DHKeyParameters) ((DHPrivateKeyImpl) privateKey).getParameters()).getParameters();
+                BigInteger retAgreement = engine.calculateAgreement(new DHPublicKeyParameters(pubKey, baseParam));
+                return (new ByteContainer(retAgreement)).getBytes(secret, secretOffset);
             } else {
-                // keep the whole result:
-                result = num;
-            }
+                byte[] publicKey = new byte[publicLength];
+                Util.arrayCopyNonAtomic(publicData, publicOffset, publicKey, (short) 0, publicLength);
+                ECPublicKeyParameters ecp = new ECPublicKeyParameters(
+                        ((ECPrivateKeyParameters) ((ECPrivateKeyImpl) privateKey).getParameters()).getParameters().getCurve().decodePoint(publicKey), ((ECPrivateKeyParameters) ((ECPrivateKeyImpl) privateKey).getParameters()).getParameters());
+                byte[] num = engine.calculateAgreement(ecp).toByteArray();
 
-            // post-process output key based on agreement type
-            switch (this.algorithm) {
-                case ALG_EC_SVDP_DH: // no break
-                case ALG_EC_SVDP_DHC: 
-                    // apply SHA1-hash (see spec)
-                    byte[] hashResult = new byte[20];
-                    digestEngine.update(result, 0, result.length);
-                    digestEngine.doFinal(hashResult, 0);
-                    Util.arrayCopyNonAtomic(hashResult, (short) 0, secret, secretOffset, (short) hashResult.length);
-                    return (short) hashResult.length;
-                case ALG_EC_SVDP_DHC_PLAIN: // no break
-                case ALG_EC_SVDP_DH_PLAIN: // no break
-                case ALG_EC_SVDP_DH_PLAIN_XY: // no break
-                case ALG_EC_PACE_GM:
-                    // plain output
-                    Util.arrayCopyNonAtomic(result, (short) 0, secret, secretOffset, (short) result.length);
-                    return (short) result.length;
-                default:
-                    CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
-                    break;
+                byte[] result;
+                if (algorithm != ALG_EC_SVDP_DH_PLAIN_XY && algorithm != ALG_EC_PACE_GM) {
+                    // truncate/zero-pad to field size as per the spec:
+                    int fieldSize = ((ECPrivateKeyImpl) privateKey).getDomainParameters().getCurve().getFieldSize();
+                    result = new byte[(fieldSize + 7) / 8];
+                    int numBytes = Math.min(num.length, result.length);
+                    Util.arrayCopyNonAtomic(
+                            num, (short) (num.length - numBytes),
+                            result, (short) (result.length - numBytes),
+                            (short) numBytes);
+                    Util.arrayFillNonAtomic(result, (short) 0, (short) (result.length - numBytes), (byte) 0);
+                } else {
+                    // keep the whole result:
+                    result = num;
+                }
+
+                // post-process output key based on agreement type
+                switch (this.algorithm) {
+                    case ALG_EC_SVDP_DH: // no break
+                    case ALG_EC_SVDP_DHC:
+                        // apply SHA1-hash (see spec)
+                        byte[] hashResult = new byte[20];
+                        digestEngine.update(result, 0, result.length);
+                        digestEngine.doFinal(hashResult, 0);
+                        Util.arrayCopyNonAtomic(hashResult, (short) 0, secret, secretOffset, (short) hashResult.length);
+                        return (short) hashResult.length;
+                    case ALG_EC_SVDP_DHC_PLAIN: // no break
+                    case ALG_EC_SVDP_DH_PLAIN: // no break
+                    case ALG_EC_SVDP_DH_PLAIN_XY: // no break
+                    case ALG_EC_PACE_GM:
+                        // plain output
+                        Util.arrayCopyNonAtomic(result, (short) 0, secret, secretOffset, (short) result.length);
+                        return (short) result.length;
+                    default:
+                        CryptoException.throwIt(CryptoException.NO_SUCH_ALGORITHM);
+                        break;
+                }
             }
+        } catch (IllegalArgumentException e) {
+            // Bouncy castle throws IllegalArgumentException for invalid EC curve points
+            CryptoException.throwIt(CryptoException.ILLEGAL_VALUE);
         }
         
         return (short) -1;
