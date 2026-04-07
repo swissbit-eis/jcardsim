@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.licel</groupId>
-    <version>1.0.2-swissbit</version>
+    <version>1.0.3-swissbit</version>
     <packaging>jar</packaging>
     <url>http://maven.apache.org</url>
 
@@ -507,4 +507,3 @@
         </plugins>
     </build>
 </project>
-

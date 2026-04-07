@@ -41,5 +41,7 @@ class SecureRandomNullProvider extends SecureRandom {
                 return buf;
             }
         }, null);
+        // Seed the digest-based generator so each instance does not start from the same state.
+        setSeed(new SecureRandom().generateSeed(20));
     }
 }
