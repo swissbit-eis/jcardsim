@@ -221,6 +221,21 @@ public class KeyPairImplTest extends TestCase {
         }
     }
 
+    public void testGenKeyPairECProducesDistinctPrivateKeys() {
+        KeyPair first = new KeyPair(KeyPair.ALG_EC_FP, KeyBuilder.LENGTH_EC_FP_192);
+        first.genKeyPair();
+        KeyPair second = new KeyPair(KeyPair.ALG_EC_FP, KeyBuilder.LENGTH_EC_FP_192);
+        second.genKeyPair();
+
+        byte[] firstPrivate = new byte[64];
+        byte[] secondPrivate = new byte[64];
+        short firstLength = ((ECPrivateKey) first.getPrivate()).getS(firstPrivate, (short) 0);
+        short secondLength = ((ECPrivateKey) second.getPrivate()).getS(secondPrivate, (short) 0);
+
+        assertEquals(firstLength, secondLength);
+        assertFalse(Arrays.equals(firstPrivate, secondPrivate));
+    }
+
     /**
      * Test of genKeyPair method, of class KeyPairImpl.
      * algorithm DSA - NXP JCOP  not support  this algorithm
