@@ -23,6 +23,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javacard.framework.*;
 import javacardx.apdu.ExtendedLength;
 
@@ -32,6 +34,10 @@ import javacardx.apdu.ExtendedLength;
  * @see Applet
  */
 public class SimulatorRuntime {
+    private static final Logger LOG = Logger.getLogger(SimulatorRuntime.class.getName());
+    private static final short SW_NO_ERROR = ISO7816.SW_NO_ERROR;
+    private static final short SW_MASK = (short) 0xFF00;
+
     // holds the Applet registration callback
     protected final ThreadLocal<BiConsumer<Applet,AID>> registrationCallback;
     /** storage for installed applets */
@@ -299,12 +305,16 @@ public class SimulatorRuntime {
             resetAPDU(apdu, apduCase, command);
 
             applet.process(apdu);
-            Util.setShort(theSW, (short) 0, (short) 0x9000);
+            Util.setShort(theSW, (short) 0, SW_NO_ERROR);
         } catch (Throwable e) {
-            Util.setShort(theSW, (short) 0, ISO7816.SW_UNKNOWN);
+            short sw = ISO7816.SW_UNKNOWN;
             if (e instanceof ISOException) {
-                Util.setShort(theSW, (short) 0, ((ISOException) e).getReason());
+                sw = ((ISOException) e).getReason();
             }
+            if (!(e instanceof ISOException && (sw == SW_NO_ERROR || (sw & SW_MASK) == (short) 0x6100))) {
+                LOG.log(Level.FINE, String.format("Unhandled applet exception mapped to SW=%04X", sw & 0xFFFF), e);
+            }
+            Util.setShort(theSW, (short) 0, sw);
         }
         finally {
             selecting = false;
