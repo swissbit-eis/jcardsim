@@ -170,19 +170,20 @@ public class SimulatorRuntime {
     /**
      * Load applet
      * @param aid Applet AID
+     * @param loadFileVersion LoadFile version, or null if the version is unknown
      * @param appletClass Applet class
      */
-    public void loadApplet(AID aid, Class<? extends Applet> appletClass) {
+    public void loadApplet(AID aid, ElfVersion loadFileVersion, Class<? extends Applet> appletClass) {
         if (generatedLoadFileAIDs.keySet().contains(aid)) {
             throw new SystemException(SystemException.ILLEGAL_AID);
         }
-        // generate a load file AID
+        // generate a LoadFile AID
         byte[] generated = new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, 0, 0};
         Util.setShort(generated, (short) 3, (short) generatedLoadFileAIDs.size());
         AID generatedAID = AIDUtil.create(generated);
 
         generatedLoadFileAIDs.put(aid, generatedAID);
-        loadLoadFile(new LoadFile(generatedAID, generatedAID, appletClass));
+        loadLoadFile(new LoadFile(generatedAID, loadFileVersion, generatedAID, appletClass));
     }
 
     /**
@@ -195,6 +196,30 @@ public class SimulatorRuntime {
             throw new IllegalStateException("LoadFile AID already used");
         }
         loadFiles.put(key, loadFile);
+    }
+
+    /**
+     * Get a loaded LoadFile.
+     * @param aid LoadFile AID
+     * @return LoadFile or null
+     */
+    public LoadFile getLoadFile(AID aid) {
+        if (aid == null) {
+            return null;
+        }
+        return loadFiles.get(aid);
+    }
+
+    /**
+     * Delete a LoadFile
+     * @param aid LoadFile AID to delete
+     */
+    public void deleteLoadFile(AID aid) {
+        activateSimulatorRuntimeInstance();
+        if (!loadFiles.keySet().contains(aid)) {
+            throw new SystemException(SystemException.ILLEGAL_AID);
+        }
+        loadFiles.remove(aid);
     }
 
     /**
@@ -312,7 +337,7 @@ public class SimulatorRuntime {
                 sw = ((ISOException) e).getReason();
             }
             if (!(e instanceof ISOException && (sw == SW_NO_ERROR || (sw & SW_MASK) == (short) 0x6100))) {
-                LOG.log(Level.FINE, String.format("Unhandled applet exception mapped to SW=%04X", sw & 0xFFFF), e);
+                LOG.log(Level.FINE, String.format("Unhandled ISOException SW=%04X", sw & 0xFFFF), e);
             }
             Util.setShort(theSW, (short) 0, sw);
         }
@@ -611,6 +636,11 @@ public class SimulatorRuntime {
     public void installApplet(AID loadFileAID, AID moduleAID, final AID appletAID,
                               byte[] bArray, short bOffset, byte bLength) {
         activateSimulatorRuntimeInstance();
+
+        if(applets.containsKey(appletAID)){
+            // Installing the same AID twice is not allowed.
+            throw new SystemException(SystemException.ILLEGAL_AID);
+        }
         LoadFile loadFile = loadFiles.get(loadFileAID);
         if (loadFile == null) {
             throw new IllegalArgumentException("LoadFile AID not found " + AIDUtil.toString(loadFileAID));
@@ -639,7 +669,7 @@ public class SimulatorRuntime {
 
                 // register applet
                 if (installAID != null) {
-                    applets.put(installAID, new ApplicationInstance(installAID, applet));
+                    throw new UnsupportedOperationException("Calling register with an installAID is not supported yet.");
                 }
                 else {
                     applets.put(appletAID, new ApplicationInstance(appletAID, applet));

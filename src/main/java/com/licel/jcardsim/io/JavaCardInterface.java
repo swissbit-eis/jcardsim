@@ -29,7 +29,7 @@ public interface JavaCardInterface extends CardInterface {
      * <code>Applet</code> into Simulator
      *
      * @param aid applet aid
-     * @param appletClassName fully qualified applet class name Strin
+     * @param appletClassName fully qualified applet class name String
      * @param appletJarContents contains a byte array containing a jar file with an applet and its dependent classes
      * @return applet <code>AID</code>
      * @throws SystemException if <code>appletClass</code> not instanceof

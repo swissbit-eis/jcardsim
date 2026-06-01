@@ -29,16 +29,18 @@ import java.util.List;
  */
 public final class LoadFile {
     private final AID aid;
+    private final ElfVersion version;
     private final List<Module> modules;
 
     /**
      * Create a LoadFile containing <code>1..*</code> modules (JavaCard applets)
      * @param loadFileAID AID of the LoadFile (JavaCard Package AID)
+     * @param loadFileVersion LoadFile version, or null if the version is unknown
      * @param modules array of modules
      * @throws java.lang.NullPointerException if any argument is null
      * @throws java.lang.IllegalArgumentException if <code>modules</code> is empty
      */
-    public LoadFile(AID loadFileAID, Module... modules) {
+    public LoadFile(AID loadFileAID, ElfVersion loadFileVersion, Module... modules) {
         if (loadFileAID == null) {
             throw new NullPointerException("loadFileAID");
         }
@@ -50,23 +52,32 @@ public final class LoadFile {
         }
 
         this.aid = loadFileAID;
+        this.version = loadFileVersion;
         this.modules = Collections.unmodifiableList(Arrays.asList(modules));
     }
 
     /**
      * Create a LoadFile containing one module (JavaCard applet)
      * @param loadFileAID AID of the LoadFile (JavaCard Package AID)
+     * @param loadFileVersion LoadFile version, or null if the version is unknown
      * @param moduleAid AID of the module/class
      * @param appletClass the Applet class
      * @throws java.lang.NullPointerException if any argument is null
      * @throws java.lang.IllegalArgumentException if <code>modules</code> is empty
      */
-    public LoadFile(AID loadFileAID, AID moduleAid, Class<? extends Applet> appletClass) {
-        this(loadFileAID, new Module(moduleAid, appletClass));
+    public LoadFile(AID loadFileAID, ElfVersion loadFileVersion, AID moduleAid, Class<? extends Applet> appletClass) {
+        this(loadFileAID, loadFileVersion, new Module(moduleAid, appletClass));
     }
 
     public AID getAid() {
         return aid;
+    }
+
+    public ElfVersion getVersion() {
+        if (version == null) {
+            throw new IllegalStateException("LoadFile version not set");
+        }
+        return version;
     }
 
     public List<Module> getModules() {
@@ -85,7 +96,11 @@ public final class LoadFile {
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("LoadFile ").append(AIDUtil.toString(aid)).append("\n");
+        stringBuilder.append("LoadFile ")
+                .append(AIDUtil.toString(aid))
+                .append(" (version ")
+                .append(version)
+                .append(")\n");
         for (Module module : modules) {
             stringBuilder.append("  ").append(module.toString()).append("\n");
         }

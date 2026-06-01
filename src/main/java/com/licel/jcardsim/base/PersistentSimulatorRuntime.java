@@ -69,8 +69,8 @@ public class PersistentSimulatorRuntime extends SimulatorRuntime {
     }
     
     @Override
-    public void loadApplet(AID aid, Class<? extends Applet> appletClass) {
-        super.loadApplet(aid, appletClass);
+    public void loadApplet(AID aid, ElfVersion version, Class<? extends Applet> appletClass) {
+        super.loadApplet(aid, version, appletClass);
 
         if(appletsDir != null) {
             File appletInstanceFile = new File(appletsDir, AIDUtil.toString(aid));
