@@ -29,7 +29,7 @@ public class CardManager implements CardManagerInterface {
         System.out.println("Trying to load an instance of com.licel.globalplatform.CardManager");
         try {
             impl = (CardManagerInterface)Class.forName("com.licel.globalplatform.CardManager").newInstance();
-            System.out.println("Succesfully loaded the instance!");
+            System.out.println("Successfully loaded the instance!");
         } catch (Throwable ex) {
             System.out.println("Failed to load the instance! Will use the default CardManager");
             impl = new CardManager();

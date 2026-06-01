@@ -160,7 +160,7 @@ public class Simulator implements JavaCardInterface {
      */
     public AID loadApplet(AID aid, Class<? extends Applet> appletClass) throws SystemException {
         synchronized (runtime) {
-            runtime.loadApplet(aid, requireExtendsApplet(appletClass));
+            runtime.loadApplet(aid, null, requireExtendsApplet(appletClass));
         }
         return aid;
     }
@@ -178,6 +178,20 @@ public class Simulator implements JavaCardInterface {
             SystemException.throwIt(SimulatorSystem.SW_APPLET_CREATION_FAILED);
         }
         return aid;
+    }
+
+    public AID createApplet(AID loadFileAID, AID moduleAID, AID appletAID,
+                            byte bArray[], short bOffset, byte bLength) throws SystemException {
+        try {
+            synchronized (runtime) {
+                runtime.installApplet(loadFileAID, moduleAID, appletAID, bArray, bOffset, bLength);
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            SystemException.throwIt(SimulatorSystem.SW_APPLET_CREATION_FAILED);
+        }
+        return appletAID;
     }
 
     /**
@@ -235,6 +249,19 @@ public class Simulator implements JavaCardInterface {
         }
     }
 
+
+    public void loadLoadFile(LoadFile loadFile) {
+        synchronized (runtime) {
+            runtime.loadLoadFile(loadFile);
+        }
+    }
+
+    public LoadFile getLoadFile(AID aid) {
+        synchronized (runtime) {
+            return runtime.getLoadFile(aid);
+        }
+    }
+
     /**
      * Delete an applet
      * @param aid applet aid
@@ -242,6 +269,16 @@ public class Simulator implements JavaCardInterface {
     public void deleteApplet(AID aid) {
         synchronized (runtime) {
             runtime.deleteApplet(aid);
+        }
+    }
+
+    /**
+     * Delete a LoadFile
+     * @param aid LoadFile aid
+     */
+    public void deleteLoadFile(AID aid) {
+        synchronized (runtime) {
+            runtime.deleteLoadFile(aid);
         }
     }
 
@@ -253,6 +290,18 @@ public class Simulator implements JavaCardInterface {
     public byte[] selectAppletWithResult(AID aid) throws SystemException {
         synchronized (runtime) {
             return runtime.transmitCommand(AIDUtil.select(aid));
+        }
+    }
+
+    /**
+     * Return <code>Applet</code> by its AID or null
+     *
+     * @param aid applet <code>AID</code>
+     * @return Applet or null
+     */
+    public Applet getApplet(AID aid) throws SystemException {
+        synchronized (runtime) {
+            return runtime.getApplet(aid);
         }
     }
 
